@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
 
 def transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos):
     df_qtd_visitas = df_visitas.copy()
@@ -20,4 +22,10 @@ def transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos):
     'qtd_visitas':int,
     'qtd_pedidos':int
     })
+    
     return df_qtd
+
+def preparar_tabela_ML(df_qtd):
+    interacoes = df_qtd[['usuario_id', 'estabelecimento_id', 'qtd_pedidos']]
+
+    return interacoes
