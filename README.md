@@ -1,4 +1,4 @@
-<h1 align="center"> Projeto de Deep Learning (Processo Seletivo QueroDelivery( </h1>
+<h1 align="center"> Projeto de Deep Learning (Processo Seletivo QueroDelivery) </h1>
 
 <img alt="Static Badge" src="https://img.shields.io/badge/VS_Code-007ACC?logo=visualstudiocode"> <img alt="Static Badge" src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white"> <br>
 <img alt="Static Badge" src="https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white"> <img alt="Static Badge" src="https://img.shields.io/badge/Tensor_Flow-FF6F00?logo=tensorflow&logoColor=white">
