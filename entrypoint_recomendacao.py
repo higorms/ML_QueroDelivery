@@ -14,7 +14,13 @@ if (df_visitas is not None and
         transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)
     )
 
-user_id = '5a67ba2ab85947003298770e'
+tamanho = len(unique_items)
+user_id = input('Informe o ID do usuário conforme a base de dados:')
 
-recomendacoes = recommend(user_id, unique_items)
-print(f"Recomendações para o usuário {user_id}: {recomendacoes}")
+# Verifica se o user_id existe na lista unique_users
+if user_id in unique_users:
+    recomendacoes = recommend(user_id, unique_items, num_recommendations=tamanho)
+    print(f"Recomendações para o usuário {user_id}: {recomendacoes}")
+else:
+    print("O usuário não existe na base de dados.")
+    exit()  # Encerra o programa
