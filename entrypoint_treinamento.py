@@ -14,4 +14,4 @@ if (df_visitas is not None and
         transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)
     )
 
-treinar_modelo(interacoes)
+treinar_modelo(interacoes, unique_users, unique_items)

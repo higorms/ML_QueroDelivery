@@ -1,13 +1,11 @@
 import tensorflow as tf
-
+from Modelo.Treinamento import RecommenderModel  # Importa a classe
 
 # Função para fazer recomendações
-def recommend(user_id, interacoes, num_recommendations=5):
-    # Criar um conjunto de dados de usuários e itens únicos
-    unique_users = interacoes['usuario_id'].unique()  # Extrai IDs únicos de usuários
-    unique_items = interacoes['estabelecimento_id'].unique()  # Extrai IDs únicos de estabelecimentos
-    #Carrega o modelo salvo
-    model = tf.keras.models.load_model('recomendacao_querodelivery.keras')
+def recommend(user_id, unique_items, num_recommendations=5):
+    # Carrega o modelo salvo com custom_objects
+    model = tf.keras.models.load_model('recomendacao_querodelivery.keras', 
+                                       custom_objects={'RecommenderModel': RecommenderModel})
     # Obtém o vetor de embedding do usuário
     user_vector = model.user_embedding(tf.constant([user_id]))
     # Obtém os scores para todos os itens

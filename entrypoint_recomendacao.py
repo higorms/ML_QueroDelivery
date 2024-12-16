@@ -14,5 +14,7 @@ if (df_visitas is not None and
         transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)
     )
 
-user_id = '0'
-recommend(user_id,interacoes)
+user_id = '5a67ba2ab85947003298770e'
+
+recomendacoes = recommend(user_id, unique_items)
+print(f"Recomendações para o usuário {user_id}: {recomendacoes}")

@@ -1,5 +1,4 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 
 
 def transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos):
@@ -27,5 +26,8 @@ def transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos):
 
 def preparar_tabela_ML(df_qtd):
     interacoes = df_qtd[['usuario_id', 'estabelecimento_id', 'qtd_pedidos']]
-
-    return interacoes
+    # Criar um conjunto de dados de usuários e itens únicos
+    unique_users = interacoes['usuario_id'].unique()  # Extrai IDs únicos de usuários
+    unique_items = interacoes['estabelecimento_id'].unique()  # Extrai IDs únicos de estabelecimentos
+    
+    return interacoes, unique_users, unique_items
