@@ -1,9 +1,10 @@
+# Importando bibliotecas e funções
 import tensorflow as tf
 from Modelo.Treinamento import RecommenderModel  # Importa a classe
 
 # Função para fazer recomendações
 def recommend(user_id, unique_items, num_recommendations=5):
-    # Carrega o modelo salvo com custom_objects
+    # Carrega o modelo salvo do treinamento
     model = tf.keras.models.load_model('recomendacao_querodelivery.keras', 
                                        custom_objects={'RecommenderModel': RecommenderModel})
     # Obtém o vetor de embedding do usuário

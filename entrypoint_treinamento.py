@@ -1,3 +1,4 @@
+# Importando funções
 from Extrator.extrator import extrair_dados
 from Transformador.transformador import transformar_tabelas, preparar_tabela_ML
 from Modelo.Treinamento import treinar_modelo
@@ -13,5 +14,5 @@ if (df_visitas is not None and
     interacoes, unique_users, unique_items = preparar_tabela_ML(
         transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)
     )
-
-treinar_modelo(interacoes, unique_users, unique_items)
+    # Treino o modelo de acordo com a função
+    treinar_modelo(interacoes, unique_users, unique_items)
