@@ -1,57 +1,70 @@
-import keras
-import tensorflow as tf
-import tensorflow_recommenders as tfrs
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-import os
+# Importando bibliotecas e funções necessárias
+import keras    # Biblioteca para modelo de deep learning
+import tensorflow as tf     # Base do keras, que oferece as operações e estruturas dos modelos
+import tensorflow_recommenders as tfrs  # Biblioteca do tensorflow especializada em modelos de recomendação
+import matplotlib.pyplot as plt     # Biblioteca de visualização gráfica
+from sklearn.model_selection import train_test_split    # Utilizado para divir os dados em teste e treino
+import os   # Bilioteca do sistema operacional que permite manipulação de arquivos e diretórios
 
 
-# Definição do modelo de recomendação
+# Definição do modelos
 @keras.saving.register_keras_serializable()
-class RecommenderModel(tfrs.Model):
-    def __init__(self, unique_users, unique_items, **kwargs):
+class RecommenderModel(tfrs.Model): # Classe que herda funções do trfs.model (modelo de recomendação)
+    def __init__(self, unique_users, unique_items, **kwargs): 
         super().__init__(**kwargs)
-        self.unique_users = unique_users
-        self.unique_items = unique_items
+        self.unique_users = unique_users    # Define os id's únicos dos usuários da base
+        self.unique_items = unique_items    # Define os id's únicos dos estabelecimentos da base
 
         # Embedding para usuários
         self.user_embedding = tf.keras.Sequential([
-            tf.keras.layers.StringLookup(),  # Converte IDs de usuários em índices
-            tf.keras.layers.Embedding(input_dim=len(unique_users) + 1, output_dim=8,
-                                      embeddings_regularizer=keras.regularizers.l2(1e-4)),
-                                      keras.layers.Dropout(0.2)
+            tf.keras.layers.StringLookup(),  # Converte IDs de usuários em índices númericos, já que o modelo não consegue lidar com strings para o aprendizado
+            tf.keras.layers.Embedding(input_dim=len(unique_users) + 1, output_dim=8,    # Tamanho da tabela de embeddings e sua dimensão
+                                      embeddings_regularizer=keras.regularizers.l2(1e-4)),      # Camada de regularização L2, para previnir overfitting do modelo
+                                      keras.layers.Dropout(0.2)     # Camada de dropout com o mesmo propósito da regularização
         ])
 
         # Embedding para itens
         self.item_embedding = tf.keras.Sequential([
-            tf.keras.layers.StringLookup(),  # Converte IDs de itens em índices
-            tf.keras.layers.Embedding(input_dim=len(unique_items) + 1, output_dim=8,
-                                      embeddings_regularizer=keras.regularizers.l2(1e-4)),
-                                      keras.layers.Dropout(0.2)
+            tf.keras.layers.StringLookup(),  # Converte IDs de estabelecimentos em índices númericos, já que o modelo não consegue lidar com strings para o aprendizado
+            tf.keras.layers.Embedding(input_dim=len(unique_items) + 1, output_dim=8,    # Tamanho da tabela de embeddings e sua dimensão
+                                      embeddings_regularizer=keras.regularizers.l2(1e-4)),      # Camada de regularização L2, para previnir overfitting do modelo
+                                      keras.layers.Dropout(0.2)     # Camada de dropout com o mesmo propósito da regularização
         ])
 
-        # Adaptar os StringLookups com os dados únicos
+        # Aqui, os layers StringLookup são "treinados" para mapear os IDs únicos.
         self.user_embedding.layers[0].adapt(unique_users)
         self.item_embedding.layers[0].adapt(unique_items)
 
-        # Métrica e perda
+        # Define a tarefa de recomendação como um problema de regressão (ranking).
         self.task = tfrs.tasks.Ranking(
             loss=tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.SUM),
-            metrics=[tf.keras.metrics.RootMeanSquaredError(name='rmse')]
+            metrics=[tf.keras.metrics.RootMeanSquaredError(name='rmse')]        # Define o uso do Erro Quadrático Médio como métrica do modelo 
         )
+
+        # Camadas densas adicionais para não-linearidade
+        self.dense_layers = tf.keras.Sequential([
+            tf.keras.layers.Dense(16, activation='relu'),  # Primeira camada densa
+            tf.keras.layers.Dropout(0.2),                  # Dropout para regularização
+            tf.keras.layers.Dense(8, activation='relu'),  # Segunda camada densa
+            tf.keras.layers.Dense(1)                      # Camada final de previsão
+        ])
 
     def compute_loss(self, features, training=False):
         # Obtém embeddings para usuários e itens
-        user_embeddings = self.user_embedding(features["usuario_id"])
-        item_embeddings = self.item_embedding(features["estabelecimento_id"])
+        user_embeddings = self.user_embedding(features["usuario_id"])   # Embedding do usuário.
+        item_embeddings = self.item_embedding(features["estabelecimento_id"])       # Embedding do estabelecimento.
 
-        # Produto entre embeddings (previsão)
-        predicted_score = tf.reduce_sum(user_embeddings * item_embeddings, axis=1)
+        # Combina os embeddings (concatenação ao invés de produto escalar)
+        combined_embeddings = tf.concat([user_embeddings, item_embeddings], axis=1)
+        
+        # Passa pelas camadas densas para introduzir não-linearidade
+        predicted_score = self.dense_layers(combined_embeddings)
+        predicted_score = tf.squeeze(predicted_score, axis=1)  # Remove dimensões extras
 
-        # Obtém a quantidade de pedidos e converte para float32
+        # Converte a quantidade de pedidos para float32 (compatível com o TensorFlow).
         qtd_pedidos = tf.cast(features["qtd_pedidos"], tf.float32)
         
-        # Calcula a perda usando a tarefa Ranking
+        # Calcula a perda usando a tarefa Ranking.
         return self.task(labels=qtd_pedidos, predictions=predicted_score)
 
     def get_config(self):
@@ -116,7 +129,7 @@ def treinar_modelo(interacoes, unique_users, unique_items):
     plt.plot(history.history['rmse'], label='RMSE - Treinamento', color='green')
     plt.plot(history.history['val_rmse'], label='RMSE - Validação', color='red')
 
-    plt.title('Convergência do Modelo: Perda e RMSE')
+    plt.title('Convergência do Modelo: RMSE')
     plt.xlabel('Épocas')
     plt.ylabel('Valores')
     plt.legend()

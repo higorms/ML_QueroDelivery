@@ -9,7 +9,8 @@ def recommend(user_id, unique_items, num_recommendations=5):
                                        custom_objects={'RecommenderModel': RecommenderModel})
     # Obtém o vetor de embedding do usuário
     user_vector = model.user_embedding(tf.constant([user_id]))
-    # Obtém os scores para todos os itens
+    # Obtém os scores para todos os estabelecimentos (Chamado de "item" por convenção da nomeclatura 
+    # da biblioteca Recommenders, então entendo "item" e "itens" como os id's dos estabelcimentos convertido em embeddings)
     scores = model.item_embedding(tf.constant(unique_items))
     # Calcula a similaridade entre o vetor do usuário e os itens
     scores = tf.matmul(user_vector, scores, transpose_b=True)

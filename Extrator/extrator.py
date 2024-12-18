@@ -9,6 +9,7 @@ def extrair_dados():
         df_visitas = pd.read_csv("Dados/base_visitas.csv")
         
         return df_visitas, df_pedidos, df_estabelecimentos
+    # Criando exceções para possiveis erros durante a extração dos dados
     except FileNotFoundError as e:
         print(f"Arquivo não encontrado: {e}")
     except pd.errors.EmptyDataError as e:
