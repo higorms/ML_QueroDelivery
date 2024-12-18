@@ -50,11 +50,11 @@ class RecommenderModel(tfrs.Model): # Classe que herda funções do trfs.model (
         ])
 
     def compute_loss(self, features, training=False):
-        # Obtém embeddings para usuários e itens
+        # Obtém embeddings para usuários e itens (são os ids convertidos para formato númerico)
         user_embeddings = self.user_embedding(features["usuario_id"])   # Embedding do usuário.
         item_embeddings = self.item_embedding(features["estabelecimento_id"])       # Embedding do estabelecimento.
 
-        # Combina os embeddings (concatenação ao invés de produto escalar)
+        # Combina os embeddings para verificar as relações entre pares
         combined_embeddings = tf.concat([user_embeddings, item_embeddings], axis=1)
         
         # Passa pelas camadas densas para introduzir não-linearidade
@@ -67,7 +67,7 @@ class RecommenderModel(tfrs.Model): # Classe que herda funções do trfs.model (
         # Calcula a perda usando a tarefa Ranking.
         return self.task(labels=qtd_pedidos, predictions=predicted_score)
 
-    def get_config(self):
+    def get_config(self):   # Serializa os parâmetros necessários para salvar o modelo.
         config = super().get_config()
         config.update({
             'unique_users': self.unique_users.tolist(),
@@ -76,7 +76,7 @@ class RecommenderModel(tfrs.Model): # Classe que herda funções do trfs.model (
         return config
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config): # Método para carregar o modelo a partir da configuração salva.
         unique_users = tf.convert_to_tensor(config['unique_users'])
         unique_items = tf.convert_to_tensor(config['unique_items'])
         return cls(unique_users, unique_items, **{k: v for k, v in config.items() if k not in ['unique_users', 'unique_items']})
@@ -89,23 +89,24 @@ def treinar_modelo(interacoes, unique_users, unique_items):
     # Compila o modelo
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
 
-    # Divide os dados em treinamento e validação
+    # Divide os dados em treinamento e teste (80% treino e 20% teste)
     train_interacoes, val_interacoes = train_test_split(interacoes, test_size=0.2, random_state=42)
 
-    # Prepara os dados para TensorFlow
+    # Prepara os dados de treino para TensorFlow
     train_data = tf.data.Dataset.from_tensor_slices({
         "usuario_id": train_interacoes["usuario_id"].values,
         "estabelecimento_id": train_interacoes["estabelecimento_id"].values,
         "qtd_pedidos": train_interacoes["qtd_pedidos"].values
     }).shuffle(1000).batch(32)
 
+    # Prepara os dados de teste para TensorFlow
     val_data = tf.data.Dataset.from_tensor_slices({
         "usuario_id": val_interacoes["usuario_id"].values,
         "estabelecimento_id": val_interacoes["estabelecimento_id"].values,
         "qtd_pedidos": val_interacoes["qtd_pedidos"].values
     }).batch(32)
 
-    # Early Stopping
+    # Early Stopping para parar o treino em caso do erro de validação começar a subir. Isso evita um overfitting com os dados de treino
     early_stopping = keras.callbacks.EarlyStopping(
         monitor='val_loss',
         patience=3,

@@ -12,7 +12,7 @@ if (df_visitas is not None and
     df_pedidos is not None and 
     df_estabelecimentos is not None):
     interacoes, unique_users, unique_items = preparar_tabela_ML(
-        transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)
+        transformar_tabelas(df_visitas, df_pedidos, df_estabelecimentos)    # Realiza um fluxo da pipeline onde o mesmo realiza a Extração --> Reune os dataframes em um dataframe único --> Seleciona as features utilizadas no treinamento do modelo
     )
 
 # Checa a quantidade de estabelecimentos para ordenar as recomendações e coleta o id do usuario que receberá a recomendação
