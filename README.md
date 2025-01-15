@@ -9,8 +9,7 @@
 
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Na pasta raiz temos os código de entrypoints, que servem como inicializadores (gatilhos) de cada fluxo de dados. No entrypoint_treinamento é onde o pipeline é inicializado extraindo 
 os dados dos arquivos .csv, aplicando as devidas transformações e implementando tais dados preparados no treinamento de um modelo neural.</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;O entrypoint_recomendacao é o código onde o usuário do modelo pode inserir o id de qualquer usuário do banco de dados e através do modelo já treinado, ele devolve 
-  as recomendações de estabelecimentos.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;O main.py é o código onde a API feita pelo flask é inicializada permitindo que o usuário consulte o modelo da rede neural já treinado, tendo como entrada para a API o ID do usuário e retornando a lista de recomendações ordenada.</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Na pasta Extrator fica o código responsável por fazer a extração dos dados de dentro dos arquivos .csv que estão contidos na pasta Dados, e armazená-los em dataframes do pandas.</p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;Na pasta Transformador temos o código que faz a transformação do dataframe obtido, agregando os dados necessários em um dataframe único, organizando-os de forma que seja compreensivel para 
 um aprendizado de modelo.</p>
